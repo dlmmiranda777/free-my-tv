@@ -1,5 +1,8 @@
 package io.freemytv;
 
+import android.content.Context;
+import android.content.Intent;
+import android.provider.Settings;
 import android.service.dreams.DreamService;
 import android.view.KeyEvent;
 
@@ -48,5 +51,28 @@ public class Screensaver extends DreamService {
     @Override public void onDetachedFromWindow() {
         if (view != null) view.stop();
         super.onDetachedFromWindow();
+    }
+
+    /** True when the TV's screensaver is ours (or none is set): then the preview shows the same thing. */
+    static boolean systemIsOurs(Context c) {
+        String s = Settings.Secure.getString(c.getContentResolver(), "screensaver_components");
+        return s == null || s.trim().isEmpty() || s.contains(c.getPackageName() + "/");
+    }
+
+    /**
+     * Starts the screensaver the TV has set, as its idle timer would: ours, or the TV's own with screensaver=false
+     * (Google's Ambient Mode, which launcherx opened with Back on its home screen). SystemUI's Somnambulator is the
+     * exported way in; false when the TV has none.
+     */
+    static boolean startSystem(Context c) {
+        try {
+            c.startActivity(new Intent(Intent.ACTION_MAIN)
+                    .setClassName("com.android.systemui", "com.android.systemui.Somnambulator")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            return true;
+        } catch (RuntimeException e) {
+            AppLog.w("screensaver: can't start the system's: " + e);
+            return false;
+        }
     }
 }

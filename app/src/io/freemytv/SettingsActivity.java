@@ -2448,6 +2448,8 @@ public class SettingsActivity extends Activity {
                 screen = HOME_CHOICE;
                 focus = freeActive() ? 0 : 1;
             } else if (focus == 1) {
+                // With the TV's own screensaver kept (screensaver=false), show that one, not ours.
+                if (!Screensaver.systemIsOurs(activity) && Screensaver.startSystem(activity)) return;
                 pause();
                 activity.showPreview();
             } else if (focus == 2) {

@@ -3081,6 +3081,8 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
             zone = Z_SHELF;
             retarget(false);
         } else {
+            // Nothing left to close: Back opens the screensaver, as on Google TV's home screen.
+            Screensaver.startSystem(getContext());
             return;
         }
         click.move();
